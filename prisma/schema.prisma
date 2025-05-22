@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Doctor {
+  id              Int            @id @default(autoincrement())
+  password        String
+  name            String
+  phoneNumber     String
+  email           String         @unique
+  specialty       String         @default("NA")
+  degree          String
+  experience      String         @default("1 year")
+  officeAddress   String         @default("NA")
+  bio             String         @default("NA")
+  workingHours    String         @default("9:00 AM - 5:00 PM")
+  workingDays     String         @default("Monday - Friday")
+  consultationFee Int            @default(100)
+  prescriptions   Prescription[]
+  appointments    Appointment[]
+  patients        Patient[]
+  reports         Report[]
+  vitals          Vital[]
+  medications     Medication[]
+  createdAt       DateTime       @default(now())
+}
+
+model Patient {
+  id                Int            @id @default(autoincrement())
+  age               Int
+  name              String
+  bloodGroup        String         @default("not yet identified")
+  sex               String
+  phoneNumber       String         @unique
+  email             String?
+  history           String?
+  status            String         @default("Stable")
+  condition         String         @default("Healthy")
+  prescriptions     Prescription[]
+  appointments      Appointment[]
+  vitals            Vital[]
+  medications       Medication[]
+  reports           Report[]
+  doctorId          Int
+  doctor            Doctor         @relation(fields: [doctorId], references: [id])
+  createdAt         DateTime       @default(now())
+  lastAppointmentId Int?           @unique
+  lastAppointment   Appointment?   @relation("LastAppointment", fields: [lastAppointmentId], references: [id])
+  followUpId        Int?           @unique
+  followUp          Appointment?   @relation("FollowUpAppointment", fields: [followUpId], references: [id])
+}
+
+model Appointment {
+  id                Int            @id @default(autoincrement())
+  date              String
+  time              String
+  completed         Boolean        @default(false)
+  doctorId          Int
+  doctor            Doctor         @relation(fields: [doctorId], references: [id])
+  patientId         Int
+  patient           Patient        @relation(fields: [patientId], references: [id])
+  lastAppointmentOf Patient?       @relation("LastAppointment")
+  followUpFor       Patient?       @relation("FollowUpAppointment")
+  prescriptions     Prescription[]
+  medications       Medication[]
+  reports           Report[]
+  createdAt         DateTime       @default(now())
+}
+
+model Prescription {
+  id               Int         @id @default(autoincrement())
+  currentCondition String
+  diagnosis        String
+  treatment        String
+  advice           String?
+  patientId        Int
+  patient          Patient     @relation(fields: [patientId], references: [id])
+  createdBy        Int
+  doctor           Doctor      @relation(fields: [createdBy], references: [id])
+  appointmentId    Int
+  appointment      Appointment @relation(fields: [appointmentId], references: [id])
+  createdAt        DateTime    @default(now())
+}
+
+model Vital {
+  id        Int      @id @default(autoincrement())
+  vitals    Json[]
+  patientId Int
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  createdBy Int
+  doctor    Doctor   @relation(fields: [createdBy], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Medication {
+  id            Int         @id @default(autoincrement())
+  medicine      Json[]
+  patientId     Int
+  patient       Patient     @relation(fields: [patientId], references: [id])
+  appointmentId Int
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  createdBy     Int
+  doctor        Doctor      @relation(fields: [createdBy], references: [id])
+  createdAt     DateTime    @default(now())
+}
+
+model Report {
+  id            Int         @id @default(autoincrement())
+  patientId     Int
+  reports       Json[]
+  patient       Patient     @relation(fields: [patientId], references: [id])
+  appointmentId Int
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  createdBy     Int
+  doctor        Doctor      @relation(fields: [createdBy], references: [id])
+  createdAt     DateTime    @default(now())
+}
