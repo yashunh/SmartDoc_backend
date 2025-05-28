@@ -2,9 +2,9 @@ import { z } from "zod"
 
 export const idSchema = z.number()
 
-const timeSchema = z.string().regex(/^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/)
+const timeSchema = z.string()//.regex(/^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/)
 
-const dateSchema = z.string().regex(/^(202[4-9]|20[3-9][0-9])-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/)
+const dateSchema = z.string()//.regex(/^(202[4-9]|20[3-9][0-9])-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/)
 
 const bloodGroup = z.enum(["A+", "B+", "O+", "AB+", "A-", "B-", "O-", "AB-"])
 

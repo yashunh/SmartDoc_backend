@@ -63,8 +63,7 @@ model Patient {
 
 model Appointment {
   id                Int            @id @default(autoincrement())
-  date              String
-  time              String
+  datetime          DateTime
   completed         Boolean        @default(false)
   doctorId          Int
   doctor            Doctor         @relation(fields: [doctorId], references: [id])

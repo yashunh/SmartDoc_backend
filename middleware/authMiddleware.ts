@@ -5,11 +5,7 @@ import path from 'path';
 
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-interface CustomRequest extends Request {
-    doctorId?: string;
-}
-
-export const authMiddleware = (req: CustomRequest, res: Response, next: NextFunction): void => {
+export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
     const headers = req.headers.authorization;
     if (!headers || !headers.startsWith('Bearer ')) {
         res.status(403).json({ msg: "Invalid headers" });
@@ -19,9 +15,10 @@ export const authMiddleware = (req: CustomRequest, res: Response, next: NextFunc
     const token = headers.split(' ')[1];
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret") as { doctorId: string };
-        req.doctorId = decoded.doctorId;
+        req.params.doctorId = decoded.doctorId;
         next();
     } catch (err) {
-        res.status(403).json({ msg: "Invalid token" });
+        console.log(req.params.doctorId)
+        res.status(403).json({err});
     }
 };
