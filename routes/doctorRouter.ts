@@ -176,7 +176,7 @@ app.get("/doctor/getPatientDetails/:patientId", authMiddleware, async (req, res)
     })
 })
 
-app.post("/doctor/updateDetails/patient", authMiddleware, async (req, res): Promise<any> => {
+app.put("/doctor/updateDetails/patient", authMiddleware, async (req, res): Promise<any> => {
     let data = {
         ...req.body,
         doctorId: req.params.doctorId
