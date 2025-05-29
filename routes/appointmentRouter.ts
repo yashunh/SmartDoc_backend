@@ -1,11 +1,7 @@
 import express from "express"
 import { authMiddleware } from "../middleware/authMiddleware";
 import { prisma } from "../index";
-import dotenv from 'dotenv';
-import path from 'path';
 import { createAppointment, idSchema } from "../zod";
-
-dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const app = express.Router()
 
