@@ -56,6 +56,9 @@ export const updatePatient = z.object({
 export const createAppointment = z.object({
     doctorId: idSchema,
     patientId: idSchema,
-    date: dateSchema,
-    time: timeSchema
+    day: z.number(),
+    month: z.number(),
+    year: z.number(),
+    hours: z.number(),
+    minutes: z.number()
 })

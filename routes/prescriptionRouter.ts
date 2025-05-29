@@ -1,5 +1,4 @@
 import express from "express"
-import jwt from "jsonwebtoken"
 import { authMiddleware } from "../middleware/authMiddleware";
 import { prisma } from "../index";
 import dotenv from 'dotenv';

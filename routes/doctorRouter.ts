@@ -35,7 +35,7 @@ app.post('/doctor/signin', async (req, res): Promise<any> => {
     }
     const token = jwt.sign({ doctorId: doc.id }, process.env.JWT_SECRET || "secret")
     return res.json({
-        msg: "doctor logged in",
+        message: "doctor logged in",
         token,
         doc: {
             id,name,phoneNumber,email,specialty,degree,experience,officeAddress,bio,workingHours,workingDays,consultationFee,createdAt
@@ -71,7 +71,7 @@ app.post("/doctor/signup", async (req, res): Promise<any> => {
     })
     const token = jwt.sign({ doctorId: newDoc.id }, process.env.JWT_SECRET || "secret")
     return res.json({
-        msg: "doctor created",
+        message: "doctor created",
         token,
         newDoc
     })
@@ -132,7 +132,7 @@ app.post("/doctor/create/patient", authMiddleware, async (req, res): Promise<any
         data: data
     })
     return res.json({
-        msg: "patient created",
+        message: "patient created",
         newPatient
     })
 })
@@ -171,7 +171,7 @@ app.get("/doctor/getPatientDetails/:patientId", authMiddleware, async (req, res)
         })
     }
     return res.json({
-        msg: "patient details fetched",
+        message: "patient details fetched",
         patient
     })
 })
@@ -224,7 +224,7 @@ app.post("/doctor/updateDetails/patient", authMiddleware, async (req, res): Prom
         }
     }))
     return res.json({
-        msg: "patient details updated",
+        message: "patient details updated",
         newPatient
     })
 })
