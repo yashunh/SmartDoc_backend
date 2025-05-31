@@ -74,6 +74,7 @@ model Appointment {
   prescriptions     Prescription[]
   medications       Medication[]
   reports           Report[]
+  vitals            Vital[]
   createdAt         DateTime       @default(now())
 }
 
@@ -85,8 +86,8 @@ model Prescription {
   advice           String?
   patientId        Int
   patient          Patient     @relation(fields: [patientId], references: [id])
-  createdBy        Int
-  doctor           Doctor      @relation(fields: [createdBy], references: [id])
+  doctorId        Int
+  doctor           Doctor      @relation(fields: [doctorId], references: [id])
   appointmentId    Int
   appointment      Appointment @relation(fields: [appointmentId], references: [id])
   createdAt        DateTime    @default(now())
@@ -97,8 +98,10 @@ model Vital {
   vitals    Json[]
   patientId Int
   patient   Patient  @relation(fields: [patientId], references: [id])
-  createdBy Int
-  doctor    Doctor   @relation(fields: [createdBy], references: [id])
+  doctorId Int
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  appointmentId Int
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
   createdAt DateTime @default(now())
 }
 
@@ -109,8 +112,8 @@ model Medication {
   patient       Patient     @relation(fields: [patientId], references: [id])
   appointmentId Int
   appointment   Appointment @relation(fields: [appointmentId], references: [id])
-  createdBy     Int
-  doctor        Doctor      @relation(fields: [createdBy], references: [id])
+  doctorId     Int
+  doctor        Doctor      @relation(fields: [doctorId], references: [id])
   createdAt     DateTime    @default(now())
 }
 
@@ -121,7 +124,7 @@ model Report {
   patient       Patient     @relation(fields: [patientId], references: [id])
   appointmentId Int
   appointment   Appointment @relation(fields: [appointmentId], references: [id])
-  createdBy     Int
-  doctor        Doctor      @relation(fields: [createdBy], references: [id])
+  doctorId     Int
+  doctor        Doctor      @relation(fields: [doctorId], references: [id])
   createdAt     DateTime    @default(now())
 }

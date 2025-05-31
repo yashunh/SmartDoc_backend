@@ -1,7 +1,7 @@
 import express from "express"
 import { authMiddleware } from "../middleware/authMiddleware";
 import { prisma } from "../index";
-import { createAppointment, idSchema } from "../zod";
+import { changeAppointment, createAppointment, idSchema } from "../zod";
 
 const app = express.Router()
 
@@ -38,12 +38,31 @@ app.post("/appointment/create", authMiddleware, async (req, res): Promise<any> =
         })
     }
 
+    const patient = await prisma.patient.findFirst({
+        where: {
+            id: data.patientId
+        }
+    })
+    if (!patient) {
+        return res.status(411).json({
+            message: "Patient does not exists"
+        })
+    }
+
     let dateTime = new Date(data.year, data.month - 1, data.day, data.hours, data.minutes)
     const appointment = await prisma.appointment.create({
         data: {
             doctorId: data.doctorId,
             patientId: data.patientId,
             datetime: dateTime
+        }
+    })
+    await prisma.patient.update({
+        where: {
+            id: data.patientId
+        },
+        data:{
+            followUpId: appointment.id
         }
     })
 
@@ -166,19 +185,15 @@ app.get("/appointment/current", authMiddleware, async (req, res): Promise<any> =
 
 app.put("/appointment/complete/:appointmentId", authMiddleware, async (req, res): Promise<any> => {
     const doctorId = parseInt(req.params.doctorId)
-    let result1 = idSchema.safeParse(doctorId);
     const appointmentId = parseInt(req.params.appointmentId)
-    let result2 = idSchema.safeParse(appointmentId);
-    if (!result1.success) {
+    let result = changeAppointment.safeParse({
+        doctorId: doctorId,
+        appointmentId: appointmentId
+    });
+    if (!result.success) {
         return res.status(411).json({
             message: 'Incorrect inputs',
-            result1
-        });
-    }
-    if (!result2.success) {
-        return res.status(411).json({
-            message: 'Incorrect inputs',
-            result2
+            result
         });
     }
 
@@ -207,6 +222,15 @@ app.put("/appointment/complete/:appointmentId", authMiddleware, async (req, res)
         })
     }
 
+    await prisma.patient.update({
+        where: {
+            id: updatedAppointment.patientId
+        },
+        data:{
+            lastAppointmentId: updatedAppointment.id
+        }
+    })
+
     return res.send({
         updatedAppointment,
         message: "Appointment updated"
@@ -215,19 +239,15 @@ app.put("/appointment/complete/:appointmentId", authMiddleware, async (req, res)
 
 app.delete("/appointment/cancel/:appointmentId", authMiddleware, async (req, res): Promise<any> => {
     const doctorId = parseInt(req.params.doctorId)
-    let result1 = idSchema.safeParse(doctorId);
     const appointmentId = parseInt(req.params.appointmentId)
-    let result2 = idSchema.safeParse(appointmentId);
-    if (!result1.success) {
+    let result = changeAppointment.safeParse({
+        doctorId: doctorId,
+        appointmentId: appointmentId
+    });
+    if (!result.success) {
         return res.status(411).json({
             message: 'Incorrect inputs',
-            result1
-        });
-    }
-    if (!result2.success) {
-        return res.status(411).json({
-            message: 'Incorrect inputs',
-            result2
+            result
         });
     }
 

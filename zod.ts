@@ -62,3 +62,45 @@ export const createAppointment = z.object({
     hours: z.number(),
     minutes: z.number()
 })
+
+export const changeAppointment = z.object({
+    doctorId: idSchema,
+    appointmentId: idSchema
+})
+
+export const createPrescription = z.object({
+    doctorId: idSchema,
+    patientId: idSchema,
+    currentCondition: string,
+    diagnosis: string,
+    treatment: string,
+    advice: string
+})
+
+export const createVital = z.object({
+    doctorId: idSchema,
+    patientId: idSchema,
+    vitals: z.object({})
+})
+
+export const createMedication = z.object({
+    doctorId: idSchema,
+    patientId: idSchema,
+    medicine: z.object({})
+})
+
+export const createReport = z.object({
+    doctorId: idSchema,
+    patientId: idSchema,
+    reports: z.array(z.object({}))
+})
+
+export const getPrescription = z.object({
+    doctorId: idSchema,
+    patientId: idSchema
+})
+
+export const getPrescriptionById = z.object({
+    doctorId: idSchema,
+    prescriptionId: idSchema
+})
