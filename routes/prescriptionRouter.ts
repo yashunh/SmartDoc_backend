@@ -2,7 +2,6 @@ import express from "express"
 import { authMiddleware } from "../middleware/authMiddleware";
 import { prisma } from "../index";
 import { createPrescription, createReport, createVital, getPrescription, getPrescriptionById } from "../zod";
-import { number } from "zod";
 
 const app = express.Router()
 
@@ -136,6 +135,51 @@ app.get("/prescription/last/:patientId", authMiddleware, async (req, res): Promi
         });
     }
 
+    try {
+        const appointment = await prisma.appointment.findMany({
+            where: {
+                patientId
+            },
+            orderBy: {
+                datetime: "desc"
+            },
+            take: 1
+        })
+
+        const prescription = await prisma.prescription.findFirst({
+            where: {
+                appointmentId: appointment[0].id
+            }
+        })
+        const vital = await prisma.vital.findFirst({
+            where: {
+                appointmentId: appointment[0].id
+            }
+        })
+        const medication = await prisma.medication.findFirst({
+            where: {
+                appointmentId: appointment[0].id
+            }
+        })
+        const report = await prisma.report.findFirst({
+            where: {
+                appointmentId: appointment[0].id
+            }
+        })
+
+        return res.send({
+            msg: "found result",
+            prescription,
+            vital,
+            medication,
+            report
+        })
+    } catch (error) {
+        return res.status(403).send({
+            msg: "error in finding prescription",
+            error
+        })
+    }
 })
 
 app.get("/prescription/history/:patientId", authMiddleware, async (req, res): Promise<any> => {
@@ -152,6 +196,50 @@ app.get("/prescription/history/:patientId", authMiddleware, async (req, res): Pr
         });
     }
 
+    try {
+        const appointment = await prisma.appointment.findMany({
+            where: {
+                patientId
+            },
+            orderBy: {
+                datetime: "desc"
+            }
+        })
+
+        const prescription = await prisma.prescription.findFirst({
+            where: {
+                appointmentId: appointment[0].id
+            }
+        })
+        const vital = await prisma.vital.findFirst({
+            where: {
+                appointmentId: appointment[0].id
+            }
+        })
+        const medication = await prisma.medication.findFirst({
+            where: {
+                appointmentId: appointment[0].id
+            }
+        })
+        const report = await prisma.report.findFirst({
+            where: {
+                appointmentId: appointment[0].id
+            }
+        })
+
+        return res.send({
+            msg: "found result",
+            prescription,
+            vital,
+            medication,
+            report
+        })
+    } catch (error) {
+        return res.status(403).send({
+            msg: "error in finding prescription",
+            error
+        })
+    }
 })
 
 app.post("/prescription/:prescriptionId", authMiddleware, async (req, res): Promise<any> => {
@@ -166,6 +254,42 @@ app.post("/prescription/:prescriptionId", authMiddleware, async (req, res): Prom
             message: 'Incorrect inputs',
             result
         });
+    }
+
+    try {
+        const prescription = await prisma.prescription.findFirst({
+            where: {
+                id: prescriptionId
+            }
+        })
+        const vital = await prisma.vital.findFirst({
+            where: {
+                appointmentId: prescription?.appointmentId
+            }
+        })
+        const medication = await prisma.medication.findFirst({
+            where: {
+                appointmentId: prescription?.appointmentId
+            }
+        })
+        const report = await prisma.report.findFirst({
+            where: {
+                appointmentId: prescription?.appointmentId
+            }
+        })
+
+        return res.send({
+            msg: "found result",
+            prescription,
+            vital,
+            medication,
+            report
+        })
+    } catch (error) {
+        return res.status(403).send({
+            msg: "error in finding prescription",
+            error
+        })
     }
 })
 
