@@ -29,6 +29,20 @@ export const signinBody = z.object({
     password: string
 })
 
+export const updateDoctor = z.object({
+    doctorId: idSchema,
+    name: string.optional(),
+    phoneNumber: string.optional(),
+    specialty: string.optional(),
+    degree: string.optional(),
+    experience: string.optional(),
+    officeAddress: string.optional(),
+    bio: string.optional(),
+    workingHours: string.optional(),
+    workingDays: string.optional(),
+    consultationFee:z.number().optional()
+})
+
 export const createPatient = z.object({
     doctorId: idSchema,
     age: age,

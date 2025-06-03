@@ -1,4 +1,4 @@
-import { createPatient, getPatient, idSchema, signinBody, signupBody, updatePatient } from "../zod"
+import { createPatient, getPatient, idSchema, signinBody, signupBody, updateDoctor, updatePatient } from "../zod"
 import express from "express"
 import jwt from "jsonwebtoken"
 import { authMiddleware } from "../middleware/authMiddleware";
@@ -226,6 +226,128 @@ app.put("/doctor/updateDetails/patient", authMiddleware, async (req, res): Promi
     return res.json({
         message: "patient details updated",
         newPatient
+    })
+})
+
+app.put("/doctor/update", authMiddleware,async (req, res): Promise<any> => {
+    let data = {
+        ...req.body,
+        doctorId: req.params.doctorId
+    }
+    const result = updateDoctor.safeParse(data);
+    if (!result.success) {
+        return res.status(411).json({
+            message: 'Incorrect inputs',
+            result
+        });
+    }
+
+    const { doctorId, name, phoneNumber, specialty, degree, experience, officeAddress, bio, workingHours, workingDays, consultationFee } = data
+    const doc = await prisma.doctor.findFirst({
+        where: {
+            id: doctorId
+        }
+    })
+    if (!doc) {
+        return res.status(411).json({
+            message: "User does not exists"
+        })
+    }
+
+    const updatedDoc = await prisma.doctor.update({
+        where: {
+            id: doctorId
+        },
+        data: {
+            name: name ? name : doc.name,
+            phoneNumber: phoneNumber ? phoneNumber : doc.phoneNumber,
+            specialty: specialty ? specialty : doc.specialty,
+            degree: degree ? degree : doc.degree,
+            experience: experience ? experience : doc.experience,
+            officeAddress: officeAddress ? officeAddress : doc.officeAddress,
+            bio: bio ? bio : doc.bio,
+            workingHours: workingHours ? workingHours : doc.workingHours,
+            workingDays: workingDays ? workingDays : doc.workingDays,
+            consultationFee: consultationFee ? consultationFee : doc.consultationFee
+        },
+        omit: {
+            password: true
+        }
+    })
+    return res.json({
+        message: "patient details updated",
+        updatedDoc
+    })
+})
+
+app.get("/doctor/getAllTreatedPatientDetails", authMiddleware,async (req, res): Promise<any> => {
+     const doctorId = parseInt(req.params.doctorId)
+    const result = idSchema.safeParse(doctorId)
+    if (!result.success) {
+        return res.status(411).json({
+            message: 'Incorrect inputs',
+        });
+    }
+
+    const doc = await prisma.doctor.findFirst({
+        where: {
+            id: doctorId
+        },
+        omit: {
+            password: true
+        }
+    })
+    if (!doc) {
+        return res.status(411).json({
+            message: "Doctor does not exists"
+        })
+    }
+
+    const patient = await prisma.appointment.findMany({
+        where: {
+            doctorId: doc.id
+        },
+        include: {
+            patient: true
+        }
+    })
+
+    return res.send({
+        patient
+    })
+})
+
+app.get("/doctor/getAllCreatedPatientDetails", authMiddleware,async (req, res): Promise<any> => {
+     const doctorId = parseInt(req.params.doctorId)
+    const result = idSchema.safeParse(doctorId)
+    if (!result.success) {
+        return res.status(411).json({
+            message: 'Incorrect inputs',
+        });
+    }
+
+    const doc = await prisma.doctor.findFirst({
+        where: {
+            id: doctorId
+        },
+        omit: {
+            password: true
+        }
+    })
+    if (!doc) {
+        return res.status(411).json({
+            message: "Doctor does not exists"
+        })
+    }
+
+    const patient = await prisma.patient.findMany({
+        where: {
+            doctorId: doc.id
+        }
+    })
+
+    return res.send({
+        patient
     })
 })
 
